@@ -4,35 +4,38 @@ import {
   map,
   tap,
   retry,
-  filter,
   debounceTime,
   switchMap,
   catchError,
+  mergeMap,
 } from "rxjs/operators";
 import {
-  CHANGE_SEARCH_FIELD,
-  SEARCH_SKILLS_REQUEST,
-} from "../actions/actionTypes";
-import {
-  searchSkillsRequest,
+  resetSkills,
   searchSkillsSuccess,
+  searchSkillsRequest,
   searchSkillsFailure,
-} from "../actions/actionCreators";
+} from "../slice/skilsSlice";
 import { of } from "rxjs";
 
 export const changeSearchEpic = (action$) =>
   action$.pipe(
-    ofType(CHANGE_SEARCH_FIELD),
-    map((o) => o.payload.search.trim()),
-    filter((o) => o !== ""),
+    ofType("skils/changeSearchField"),
+    tap((o) => console.log(o)),
+    map((o) => o.payload.trim()),
     debounceTime(100),
-    map((o) => searchSkillsRequest(o))
+    mergeMap((o) => {
+      if (o === "") {
+        return of(resetSkills());
+      } else {
+        return of(searchSkillsRequest(o));
+      }
+    })
   );
 
 export const searchSkillsEpic = (action$) =>
   action$.pipe(
-    ofType(SEARCH_SKILLS_REQUEST),
-    map((o) => o.payload.search),
+    ofType("skils/searchSkillsRequest"),
+    map((o) => o.payload),
     map((o) => new URLSearchParams({ q: o })),
     tap((o) => console.log(o)),
     switchMap((o) =>
@@ -43,3 +46,10 @@ export const searchSkillsEpic = (action$) =>
       )
     )
   );
+
+// interval(1000)
+//   .pipe(
+//     mergeMap((v) => iif(() => !!(v % 2), of(v)))
+//     // output: 1,3,5...
+//   )
+//   .subscribe(console.log);

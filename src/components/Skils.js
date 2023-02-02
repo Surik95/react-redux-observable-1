@@ -1,6 +1,7 @@
 import React, { Fragment } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { changeSearchField } from "../actions/actionCreators";
+import { changeSearchField } from "../slice/skilsSlice";
+debugger;
 
 export default function Skills() {
   const { items, loading, error, search } = useSelector(
@@ -11,7 +12,9 @@ export default function Skills() {
 
   const handleSearch = (evt) => {
     const { value } = evt.target;
+    debugger;
     dispatch(changeSearchField(value));
+    debugger;
   };
 
   const hasQuery = search.trim() !== "";
